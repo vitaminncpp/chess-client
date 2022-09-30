@@ -1,6 +1,5 @@
 package com.akshayaap.chess.model;
 
-import com.akshayaap.chess.game.Move;
 import com.akshayaap.chess.game.util.ChessState;
 
 public class MoveMessage {
@@ -14,17 +13,6 @@ public class MoveMessage {
 
     public MoveMessage() {
         reset();
-    }
-
-    public MoveMessage(Move move) {
-        this.x1 = move.getX1();
-        this.y1 = move.getY1();
-        this.x2 = move.getX2();
-        this.y2 = move.getY2();
-
-        this.turn = move.getTurn();
-        this.state = move.getState();
-        this.checkState = move.getCheckState();
     }
 
     public String getSender() {
@@ -53,16 +41,6 @@ public class MoveMessage {
         this.checkState = ChessState.CHECK_NONE;
 
         this.turn = true;
-    }
-
-    public Move getMove() {
-        Move move = new Move();
-        move.setSource(this.x1, this.y1);
-        move.setDestination(this.x2, this.y2);
-        move.setState(this.state);
-        move.setCheckState(this.checkState);
-
-        return move;
     }
 
 

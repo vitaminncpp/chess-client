@@ -213,11 +213,13 @@ public class ChessGame {
                 if (this.state.getTurn() == move.getTurn()) {
                     this.move = this.board.moveTo(move.getX1(), move.getY1(), move.getX2(), move.getY2());
                     if (this.move.getState() != ChessState.ILLEGAL_MOVE) {
+                        logger.log("Illegal move");
                         this.state.toggleTurn();
                     }
                     this.update();
                 } else {
                     this.move.setState(ChessState.ILLEGAL_MOVE);
+                    logger.log("Illegal move");
                 }
                 break;
             default:
@@ -226,6 +228,7 @@ public class ChessGame {
         return this.move;
     }
 
+    @Deprecated
     public void playBlack(Move move) {
         Move tmp;
         if (!state.getTurn()) {
@@ -238,6 +241,7 @@ public class ChessGame {
         }
     }
 
+    @Deprecated
     public void playWhite(Move move) {
         if (state.getTurn()) {
             logger.log(Thread.currentThread().getStackTrace()[1] + "::Playing White's move");

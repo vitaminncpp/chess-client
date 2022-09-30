@@ -1,5 +1,6 @@
 package com.akshayaap.chess.network;
 
+import com.akshayaap.chess.game.util.Logable;
 import com.akshayaap.chess.model.ChatMessage;
 import com.akshayaap.chess.model.MoveMessage;
 import com.akshayaap.chess.util.ChessActionListener;
@@ -20,8 +21,10 @@ public class Client {
     private ThreadPoolTaskScheduler scheduler = null;
     private StompSession session = null;
     private ChessActionListener listener = null;
+    private Logable logger = null;
 
-    public Client() throws ExecutionException, InterruptedException {
+    public Client(Logable logger) throws ExecutionException, InterruptedException {
+        this.logger = logger;
         client = new StandardWebSocketClient();
         stompClient = new WebSocketStompClient(client);
         scheduler = new ThreadPoolTaskScheduler();
@@ -40,12 +43,9 @@ public class Client {
     }
 
     public void sendChatMessage(ChatMessage message) {
-        session.send("/chess/message", message);
+        session.send("/chess/chat", message);
     }
 
-    public void sendMessage() {
-
-    }
 
     public void connectToServer(String uri) throws ExecutionException, InterruptedException, URISyntaxException {
         session = stompClient.connectAsync(uri, new StompSessionHandler() {
@@ -62,7 +62,7 @@ public class Client {
 
             @Override
             public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
-                System.out.println("Connected to Stomp Client");
+                logger.log("Connected to Stomp Client");
             }
 
             @Override
@@ -77,8 +77,11 @@ public class Client {
         }).get();
     }
 
-    public void subscribe(String gameEndpoint, String chatEndpoint) {
-        session.subscribe(gameEndpoint, new StompFrameHandler() {
+    /**
+     * @param name
+     */
+    public void subscribe(String name) {
+        session.subscribe("/game/" + name + "/online", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
                 return MoveMessage.class;
@@ -86,19 +89,21 @@ public class Client {
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                System.out.println("Message received From Stomp session: " + payload);
+                logger.log("Message received From Stomp session: " + payload);
+                listener.onMoveReceived((MoveMessage) payload);
             }
         });
 
-        session.subscribe(chatEndpoint, new StompFrameHandler() {
+        session.subscribe("/game/" + name + "/message", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return MoveMessage.class;
+                return ChatMessage.class;
             }
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                System.out.println("Message received From Stomp session: " + payload);
+                logger.log("Message received From Stomp session: " + payload);
+                listener.onChatMessageReceived((ChatMessage) payload);
             }
         });
     }

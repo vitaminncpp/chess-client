@@ -81,4 +81,16 @@ public class Move {
         this.checkState = checkState;
     }
 
+    @Override
+    public String toString() {
+        return "{" +
+                "\"state\":\"" + state + '\"' +
+                ", \"checkState\":\"" + checkState + '\"' +
+                ", \"x1\":\"" + x1 + '\"' +
+                ", \"y1\":\"" + y1 + '\"' +
+                ", \"x2\":\"" + x2 + '\"' +
+                ", \"y2\":\"" + y2 + '\"' +
+                ", \"turn\":\"" + turn + '\"' +
+                '}';
+    }
 }

@@ -20,5 +20,8 @@ public enum ChessState {
     WHITE_CHECKMATE,
     BLACK_CHECKMATE,
     WHITE_STALEMATE,
-    BLACK_STALEMATE
+    BLACK_STALEMATE,
+
+    OFFLINE,
+    ONLINE;
 }

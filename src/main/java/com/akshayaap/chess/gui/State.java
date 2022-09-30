@@ -15,12 +15,32 @@ public class State {
     private int chYNext = -1;
 
     private boolean turn = true;
+    private boolean player = true;
 
+    private String name;
+    private String opponent;
+    private ChessState gameMode = ChessState.ONLINE;
     private ChessState state = ChessState.NORMAL_STATE;
     private ChessState checkState = ChessState.CHECK_NONE;
 
     public State() {
 
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getOpponent() {
+        return opponent;
+    }
+
+    public void setOpponent(String opponent) {
+        this.opponent = opponent;
     }
 
     public void reset() {
@@ -118,6 +138,14 @@ public class State {
     public void setChXYNext(int x, int y) {
         this.chXNext = x;
         this.chYNext = y;
+    }
+
+    public boolean getPlayer() {
+        return this.player;
+    }
+
+    public void setPlayer(boolean player) {
+        this.player = player;
     }
 
     public ChessState getCheckState() {

@@ -8,6 +8,7 @@ import com.akshayaap.chess.model.MoveMessage;
 import com.akshayaap.chess.network.Client;
 import com.akshayaap.chess.util.ChessActionListener;
 import com.akshayaap.chess.util.ResourceManager;
+import com.akshayaap.chess.util.Util;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -20,11 +21,6 @@ import java.util.concurrent.ExecutionException;
 
 public class ChessGui {
     private final Promotion promotionCallback = new Promotion();
-
-    public JFrame getGameFrame() {
-        return gameFrame;
-    }
-
     private final JFrame gameFrame;
     private final JPanel gamePanel = new JPanel();
     private final JMenuBar menuBar;
@@ -36,11 +32,6 @@ public class ChessGui {
     private CaptureWindow captureCallBackBlack = null;
     private CaptureWindow captureCallBackWhite = null;
     private Move move = new Move();
-
-    public Logger getLogger() {
-        return logger;
-    }
-
     private Logger logger = new Logger();
     private State state = new State();
 
@@ -89,16 +80,31 @@ public class ChessGui {
         this.gameFrame.pack();
 
 
-        client = new Client();
+        client = new Client(logger);
         client.addActionListener(new ChessActionListener() {
             @Override
-            public void onMoveReceived(MoveMessage move) {
+            public void onMoveReceived(MoveMessage msgMove) {
                 //TODO Action Performed
+                logger.log("Action is about to performed");
+                Move move = Util.convertToMove(msgMove);
+                move=game.move(move);
+                logger.log(move.toString());
+                switch (move.getState()) {
+                    case NORMAL_MOVE, CAPTURE_MOVE, CHECK_MOVE, PROMOTION_MOVE -> {
+                        ChessGui.this.state.toggleTurn();
+                        logger.log("Moved from Remote");
+                    }
+                    case ILLEGAL_MOVE -> {
+                        logger.log("Remote Made illegal move");
+                    }
+                }
+                ChessGui.this.state.reset();
+                ChessGui.this.update();
             }
 
             @Override
             public void onChatMessageReceived(ChatMessage message) {
-//TODO Action Performed
+                //TODO Action Performed
             }
         });
 
@@ -106,6 +112,13 @@ public class ChessGui {
         this.render();
     }
 
+    public JFrame getGameFrame() {
+        return gameFrame;
+    }
+
+    public Logger getLogger() {
+        return logger;
+    }
 
     public ChessGame getGame() {
         return game;
@@ -138,6 +151,24 @@ public class ChessGui {
 
     public Client getClient() {
         return this.client;
+    }
+
+    public void setPayers(String name, String opponent) {
+        this.state.setName(name);
+        this.state.setOpponent(opponent);
+    }
+
+
+    public String getName() {
+        return this.state.getName();
+    }
+
+    public String getOpponent() {
+        return this.state.getOpponent();
+    }
+
+    public State getState() {
+        return this.state;
     }
 
     private class BoardPanel extends JPanel {
@@ -334,6 +365,9 @@ public class ChessGui {
 
             @Override
             public void mousePressed(MouseEvent e) {
+                if (ChessGui.this.state.getTurn() != ChessGui.this.state.getPlayer()) {
+                    return;
+                }
                 Move move = null;
                 switch (ChessGui.this.state.getState()) {
                     case INVALID_STATE:
@@ -364,13 +398,18 @@ public class ChessGui {
                             move.setDestination(ChessGui.this.state.getChX(), ChessGui.this.state.getChY());
                             move.setState(ChessState.NORMAL_MOVE);
                             ChessGui.this.move = ChessGui.this.game.move(move);
-                            ChessGui.this.state.reset();
                             switch (ChessGui.this.move.getState()) {
                                 case NORMAL_MOVE, CAPTURE_MOVE, CHECK_MOVE, PROMOTION_MOVE -> {
                                     ChessGui.this.state.toggleTurn();
+                                    MoveMessage msgMove = Util.convertToMoveMessage(ChessGui.this.move);
+                                    msgMove.setSender(ChessGui.this.state.getName());
+                                    msgMove.setReceiver(ChessGui.this.state.getOpponent());
+                                    client.sendMoveMessage(msgMove);
                                 }
                                 case ILLEGAL_MOVE -> {
                                     game.getLogger().log("Illegal move");
+                                }
+                                default -> {
                                 }
                             }
                             ChessGui.this.state.reset();
