@@ -39,6 +39,7 @@ public class Util {
         move.setDestination(mvMsg.getX2(), mvMsg.getY2());
         move.setState(mvMsg.getState());
         move.setCheckState(mvMsg.getCheckState());
+        move.setTurn(mvMsg.getTurn());
         return move;
     }
 }

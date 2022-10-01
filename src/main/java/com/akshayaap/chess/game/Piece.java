@@ -110,7 +110,7 @@ public abstract class Piece {
         Move move = new Move();
         move.setSource(this.x, this.y);
         move.setDestination(x, y);
-
+        move.setTurn(player.getColor());
         if (this.moveMap[x][y]) {
             if (this.board[x][y].getPiece() != null) {
                 move.setState(ChessState.CAPTURE_MOVE);

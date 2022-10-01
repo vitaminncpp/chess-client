@@ -80,6 +80,10 @@ public class MoveMessage {
         return turn;
     }
 
+    public boolean getTurn() {
+        return this.turn;
+    }
+
     public void setTurn(boolean turn) {
         this.turn = turn;
     }

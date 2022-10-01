@@ -87,8 +87,8 @@ public class ChessGui {
                 //TODO Action Performed
                 logger.log("Action is about to performed");
                 Move move = Util.convertToMove(msgMove);
-                move=game.move(move);
                 logger.log(move.toString());
+                move = game.move(move);
                 switch (move.getState()) {
                     case NORMAL_MOVE, CAPTURE_MOVE, CHECK_MOVE, PROMOTION_MOVE -> {
                         ChessGui.this.state.toggleTurn();
@@ -365,7 +365,7 @@ public class ChessGui {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                if (ChessGui.this.state.getTurn() != ChessGui.this.state.getPlayer()) {
+                if (ChessGui.this.state.getGameMode() == ChessState.ONLINE && ChessGui.this.state.getTurn() != ChessGui.this.state.getPlayer()) {
                     return;
                 }
                 Move move = null;
@@ -400,11 +400,11 @@ public class ChessGui {
                             ChessGui.this.move = ChessGui.this.game.move(move);
                             switch (ChessGui.this.move.getState()) {
                                 case NORMAL_MOVE, CAPTURE_MOVE, CHECK_MOVE, PROMOTION_MOVE -> {
-                                    ChessGui.this.state.toggleTurn();
-                                    MoveMessage msgMove = Util.convertToMoveMessage(ChessGui.this.move);
+                                    MoveMessage msgMove = Util.convertToMoveMessage(move);
                                     msgMove.setSender(ChessGui.this.state.getName());
                                     msgMove.setReceiver(ChessGui.this.state.getOpponent());
                                     client.sendMoveMessage(msgMove);
+                                    ChessGui.this.state.toggleTurn();
                                 }
                                 case ILLEGAL_MOVE -> {
                                     game.getLogger().log("Illegal move");

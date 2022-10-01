@@ -213,7 +213,6 @@ public class ChessGame {
                 if (this.state.getTurn() == move.getTurn()) {
                     this.move = this.board.moveTo(move.getX1(), move.getY1(), move.getX2(), move.getY2());
                     if (this.move.getState() != ChessState.ILLEGAL_MOVE) {
-                        logger.log("Illegal move");
                         this.state.toggleTurn();
                     }
                     this.update();

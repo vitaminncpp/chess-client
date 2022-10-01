@@ -19,6 +19,15 @@ public class State {
 
     private String name;
     private String opponent;
+
+    public ChessState getGameMode() {
+        return gameMode;
+    }
+
+    public void setGameMode(ChessState gameMode) {
+        this.gameMode = gameMode;
+    }
+
     private ChessState gameMode = ChessState.ONLINE;
     private ChessState state = ChessState.NORMAL_STATE;
     private ChessState checkState = ChessState.CHECK_NONE;
