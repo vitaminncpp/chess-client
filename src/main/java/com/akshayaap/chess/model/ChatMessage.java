@@ -4,7 +4,7 @@ package com.akshayaap.chess.model;
 import java.util.Date;
 
 public class ChatMessage {
-    private String sender;
+    private User sender;
     private String receiver;
     private String message;
     private Date timestamp;
@@ -12,11 +12,11 @@ public class ChatMessage {
     public ChatMessage() {
     }
 
-    public String getSender() {
+    public User getSender() {
         return sender;
     }
 
-    public void setSender(String sender) {
+    public void setSender(User sender) {
         this.sender = sender;
     }
 

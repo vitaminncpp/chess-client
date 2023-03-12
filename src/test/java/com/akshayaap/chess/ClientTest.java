@@ -20,8 +20,6 @@ import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 
 public class ClientTest {
-
-
     @Test
     public void stompClientTest() throws ExecutionException, InterruptedException {
         WebSocketClient client = new StandardWebSocketClient();

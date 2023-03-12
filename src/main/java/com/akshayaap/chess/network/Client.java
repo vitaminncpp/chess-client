@@ -50,8 +50,11 @@ public class Client {
     public void connectToServer(String uri) throws ExecutionException, InterruptedException, URISyntaxException {
         session = stompClient.connectAsync(uri, new StompSessionHandler() {
 
+            private StompHeaders headers;
+
             @Override
             public Type getPayloadType(StompHeaders headers) {
+                this.headers = headers;
                 return MoveMessage.class;
             }
 
@@ -106,5 +109,9 @@ public class Client {
                 listener.onChatMessageReceived((ChatMessage) payload);
             }
         });
+    }
+
+    public void setChessActionListener(ChessActionListener listener) {
+        this.listener = listener;
     }
 }

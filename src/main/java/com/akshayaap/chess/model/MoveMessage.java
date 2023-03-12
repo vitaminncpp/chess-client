@@ -3,7 +3,7 @@ package com.akshayaap.chess.model;
 import com.akshayaap.chess.game.util.ChessState;
 
 public class MoveMessage {
-    String sender = null;
+    User sender = null;
     String receiver = null;
     private int x1, y1;
     private int x2, y2;
@@ -15,11 +15,11 @@ public class MoveMessage {
         reset();
     }
 
-    public String getSender() {
+    public User getSender() {
         return sender;
     }
 
-    public void setSender(String sender) {
+    public void setSender(User sender) {
         this.sender = sender;
     }
 
@@ -114,7 +114,7 @@ public class MoveMessage {
                 ", \"turn\":\"" + turn + '\"' +
                 ", \"state\":\"" + state + '\"' +
                 ", \"checkState\":\"" + checkState + '\"' +
-                ", \"sender\":\"" + sender + '\"' +
+                ", \"sender\":" + sender.toString() +
                 ", \"receiver\":\"" + receiver + '\"' +
                 '}';
     }

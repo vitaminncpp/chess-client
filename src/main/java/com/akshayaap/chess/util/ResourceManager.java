@@ -1,12 +1,46 @@
 package com.akshayaap.chess.util;
 
+import com.akshayaap.chess.game.util.Logable;
+import com.akshayaap.chess.network.Client;
+import com.akshayaap.chess.network.RetrofitClient;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 public class ResourceManager {
+    private RetrofitClient retrofitClient = null;
+
+    public Client getWebsock() {
+        return websock;
+    }
+
+    public void setWebsock(Client websock) {
+        this.websock = websock;
+    }
+
+    private Client websock = null;
+
+    public RetrofitClient getRetrofitClient() {
+        return retrofitClient;
+    }
+
+    public void setRetrofitClient(RetrofitClient retrofitClient) {
+        this.retrofitClient = retrofitClient;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    private Logable logger = null;
+
+    private Client client = null;
+    private String serverURI = null;
     private static final int IMAGE_SIZE = 40;
     private static ResourceManager resources = null;
     private final ImageIcon whiteP = new ImageIcon(ImageIO.read(Objects.requireNonNull(ResourceManager.class.getResource("/pieces/white_pawn.png"))).getScaledInstance(IMAGE_SIZE, IMAGE_SIZE, Image.SCALE_SMOOTH));
@@ -25,7 +59,7 @@ public class ResourceManager {
     private final ImageIcon circle = new ImageIcon(ImageIO.read(Objects.requireNonNull(ResourceManager.class.getResource("/pieces/circle.png"))).getScaledInstance(IMAGE_SIZE, IMAGE_SIZE, Image.SCALE_SMOOTH));
     private ImageIcon IMGS[][] = new ImageIcon[2][6];
 
-    private ResourceManager() throws IOException {
+    private ResourceManager() throws IOException, ExecutionException, InterruptedException {
         IMGS = new ImageIcon[][]{
                 {blackP, blackN, blackB, blackR, blackQ, blackK},
                 {whiteP, whiteN, whiteB, whiteR, whiteQ, whiteK}};
@@ -37,6 +71,8 @@ public class ResourceManager {
                 resources = new ResourceManager();
             } catch (IOException ex) {
                 ex.printStackTrace();
+            } catch (ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
         return resources;
@@ -96,5 +132,29 @@ public class ResourceManager {
 
     public ImageIcon getPieceImage(int i, int j) {
         return IMGS[i][j];
+    }
+
+
+    public String getServerURI() {
+        return this.serverURI;
+    }
+
+    public void setServerURI(String serverURI) {
+        this.serverURI = serverURI;
+    }
+
+    public void connect(String uri) throws URISyntaxException, ExecutionException, InterruptedException {
+        this.serverURI = uri;
+        this.retrofitClient = new RetrofitClient("http://" + uri);
+        this.websock.connectToServer("ws://" + uri);
+        logger.log("Successfully connected to server");
+    }
+
+    public void setLogger(Logable logger) {
+        this.logger = logger;
+    }
+
+    public Logable getLogger() {
+        return logger;
     }
 }

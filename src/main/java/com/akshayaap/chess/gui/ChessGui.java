@@ -5,7 +5,7 @@ import com.akshayaap.chess.game.Move;
 import com.akshayaap.chess.game.util.ChessState;
 import com.akshayaap.chess.model.ChatMessage;
 import com.akshayaap.chess.model.MoveMessage;
-import com.akshayaap.chess.network.Client;
+import com.akshayaap.chess.model.User;
 import com.akshayaap.chess.util.ChessActionListener;
 import com.akshayaap.chess.util.ResourceManager;
 import com.akshayaap.chess.util.Util;
@@ -26,7 +26,6 @@ public class ChessGui {
     private final JMenuBar menuBar;
     private final BoardPanel boardPanel;
     private final ChessGame game;
-    Client client;
     private ChessControlPanel controlPanel;
     private RightPanel rightPanel;
     private CaptureWindow captureCallBackBlack = null;
@@ -34,6 +33,9 @@ public class ChessGui {
     private Move move = new Move();
     private Logger logger = new Logger();
     private State state = new State();
+    //Users
+    private User player;
+    private User Opponent;
 
     public ChessGui() throws IOException, ExecutionException, InterruptedException {
         try {
@@ -61,7 +63,6 @@ public class ChessGui {
         this.gameFrame.setResizable(false);
         this.gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-
         this.boardPanel = new BoardPanel();
         this.gamePanel.setLayout(new BorderLayout());
         controlPanel = new ChessControlPanel(this);
@@ -79,16 +80,17 @@ public class ChessGui {
         this.gameFrame.validate();
         this.gameFrame.pack();
 
+        ResourceManager.getResourceManager().setLogger(this.logger);
 
-        client = new Client(logger);
-        client.addActionListener(new ChessActionListener() {
+
+        ResourceManager.getResourceManager().getWebsock().setChessActionListener(new ChessActionListener() {
             @Override
             public void onMoveReceived(MoveMessage msgMove) {
                 //TODO Action Performed
                 logger.log("Action is about to performed");
                 Move move = Util.convertToMove(msgMove);
                 logger.log(move.toString());
-                move = game.move(move);
+                ChessGui.this.move = game.move(move);
                 switch (move.getState()) {
                     case NORMAL_MOVE, CAPTURE_MOVE, CHECK_MOVE, PROMOTION_MOVE -> {
                         ChessGui.this.state.toggleTurn();
@@ -147,10 +149,6 @@ public class ChessGui {
         captureCallBackWhite.repaint();
         update();
         render();
-    }
-
-    public Client getClient() {
-        return this.client;
     }
 
     public void setPayers(String name, String opponent) {
@@ -297,7 +295,7 @@ public class ChessGui {
             setBackground((this.x + this.y) % 2 == 0 ? LIGHT_SQUARE : DARK_SQUARE);
             setVisible(true);
             addMouseListener(new Input());
-            Border border = new BasicBorders.FieldBorder(dark, light, lightHigh, darkHigh);
+            Border border = BasicBorders.getInternalFrameBorder();
             setBorder(border);
             validate();
         }
@@ -401,9 +399,9 @@ public class ChessGui {
                             switch (ChessGui.this.move.getState()) {
                                 case NORMAL_MOVE, CAPTURE_MOVE, CHECK_MOVE, PROMOTION_MOVE -> {
                                     MoveMessage msgMove = Util.convertToMoveMessage(move);
-                                    msgMove.setSender(ChessGui.this.state.getName());
+                                    msgMove.setSender(ChessGui.this.player);
                                     msgMove.setReceiver(ChessGui.this.state.getOpponent());
-                                    client.sendMoveMessage(msgMove);
+                                    ResourceManager.getResourceManager().getWebsock().sendMoveMessage(msgMove);
                                     ChessGui.this.state.toggleTurn();
                                 }
                                 case ILLEGAL_MOVE -> {
